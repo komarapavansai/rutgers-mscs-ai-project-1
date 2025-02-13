@@ -1,0 +1,60 @@
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+import numpy as np;
+from ..constants import *;
+from matplotlib.animation import FuncAnimation
+from functools import partial  
+
+def generate_grid(grid):
+    fig, ax = plt.subplots(figsize=(8, 8))
+    ax.clear()
+    grid_size=grid.shape[0];    
+
+    ax.set_xlim(0, grid_size)
+    ax.set_ylim(0, grid_size)
+
+    for i in range(grid_size):
+        for j in range(grid_size): 
+            if grid[i, j]==OPENED:
+                color='white'
+            elif grid[i, j]==FIRE:
+                color='red'
+            else:
+                color='gray'
+            rect=patches.Rectangle((j, grid_size-i-1), 1, 1, linewidth=1, edgecolor='black', facecolor=color)
+            ax.add_patch(rect)
+
+    ax.set_xticks(np.arange(0, grid_size+1, 1))
+    ax.set_yticks(np.arange(0, grid_size+1, 1))
+    ax.grid(which='both', color='black', linestyle='-', linewidth=1)
+    plt.draw();plt.show();
+
+fig, ax = plt.subplots(figsize=(8, 8))
+
+def update_grid(frame, grid_generator):
+    ax.clear()
+    grid = next(grid_generator)
+    grid_size = grid.shape[0]
+    ax.set_xlim(0, grid_size)
+    ax.set_ylim(0, grid_size)
+
+    for i in range(grid_size):
+        for j in range(grid_size):
+            if grid[i, j] == OPENED:
+                color = 'white'
+            elif grid[i, j] == FIRE:
+                color = 'red'
+            else:
+                color = 'gray'
+
+            rect = patches.Rectangle((j, grid_size-i-1), 1, 1, linewidth=1, edgecolor='black', facecolor=color)
+            ax.add_patch(rect)
+
+    ax.set_xticks(np.arange(0, grid_size+1, 1))
+    ax.set_yticks(np.arange(0, grid_size+1, 1))
+    ax.grid(which='both', color='black', linestyle='-', linewidth=1)
+    plt.draw()
+
+def animation_function(grid_generator):
+    animation=FuncAnimation(fig, partial(update_grid, grid_generator=grid_generator), frames=grid_generator, interval=500, repeat=False)
+    plt.show()
