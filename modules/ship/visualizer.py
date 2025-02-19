@@ -35,8 +35,8 @@ def update_grid(frame, grid_generator):
     ax.clear()
     grid = next(grid_generator)
     grid_size = grid.shape[0]
-    ax.set_xlim(0, grid_size)
-    ax.set_ylim(0, grid_size)
+    ax.set_xlim(0,grid_size)
+    ax.set_ylim(grid_size,0)
 
     for i in range(grid_size):
         for j in range(grid_size):
@@ -44,10 +44,16 @@ def update_grid(frame, grid_generator):
                 color = 'white'
             elif grid[i, j] == FIRE:
                 color = 'red'
+            elif grid[i, j] == BUTTON:
+                color = 'green'
+            elif grid[i, j] == START:
+                color = 'orange'
+            elif grid[i, j] == PATH:
+                color = 'blue'
             else:
                 color = 'gray'
 
-            rect = patches.Rectangle((j, grid_size-i-1), 1, 1, linewidth=1, edgecolor='black', facecolor=color)
+            rect = patches.Rectangle((j, i), 1, 1, linewidth=1, edgecolor='black', facecolor=color)
             ax.add_patch(rect)
 
     ax.set_xticks(np.arange(0, grid_size+1, 1))
@@ -56,5 +62,5 @@ def update_grid(frame, grid_generator):
     plt.draw()
 
 def animation_function(grid_generator):
-    animation=FuncAnimation(fig, partial(update_grid, grid_generator=grid_generator), frames=grid_generator, interval=500, repeat=False)
+    animation=FuncAnimation(fig, partial(update_grid, grid_generator=grid_generator), frames=grid_generator, interval=1000, repeat=False)
     plt.show()
