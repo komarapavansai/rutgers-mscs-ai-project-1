@@ -10,7 +10,6 @@ class Ship:
         maze=np.full(fill_value=BLOCKED, dtype= int, shape=(self.grid_size,self.grid_size))
         # Set a random cell to Open Cell
         maze[random.randint(0,self.grid_size-1)][random.randint(0,self.grid_size-1)]= OPENED # 1 indicates an Open cell.
-        maze[random.randint(0,self.grid_size-1)][random.randint(0,self.grid_size-1)]= FIRE # -1 indicates an Open cell.
         self.maze= maze
         print(f"Initial grid :\n {self.maze}\n")
 
@@ -33,10 +32,16 @@ class Ship:
 
     def ifExpansionPossbile(self):
         # SCOPE FOR IMPROVEMENT THE CODE COMPLEXITY
-        for i in range(0,self.grid_size):
-            for j in range(0, self.grid_size):
-                if self.maze[i][j]==BLOCKED and self.getOpenNeighboursCount(i,j)[0]==1:
-                    return True;
+        # for i in range(0,self.grid_size):
+        #     for j in range(0, self.grid_size):
+        #         if self.maze[i][j]==BLOCKED and self.getOpenNeighboursCount(i,j)[0]==1:
+        #             return True;
+        # return False;
+        blocked_cells=np.argwhere(self.maze == BLOCKED)
+        for each_blocked_cell in blocked_cells:
+            [x,y]=[each_blocked_cell[0],each_blocked_cell[1]];
+            if self.getOpenNeighboursCount(x,y)[0]==1:
+                return True;
         return False;
     
     def desigShipLayout(self):
