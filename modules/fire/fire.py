@@ -39,7 +39,7 @@ class Fire:
             # if np.isin(np.argwhere(self.maze == FIRE), [x,y]).all(axis=1).any()==True: # To check if bot reached the FIRE.
             if np.any(np.all(np.argwhere(self.maze == FIRE) == [x, y], axis=1))==True: # To check if bot reached the FIRE.
                 print(f"Bot and Fire are in the same cell {(x,y)}. Failure.")
-                print(f"Fire Cells -> {np.argwhere(self.maze == FIRE)}")
+                # print(f"Fire Cells -> {np.argwhere(self.maze == FIRE)}")
                 break;
             if ((x_start,y_start)!=(x,y)) : self.maze[x][y]=PATH
             self.spread_fire();

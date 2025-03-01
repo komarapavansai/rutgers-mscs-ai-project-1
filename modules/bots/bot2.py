@@ -4,10 +4,10 @@ from ..constants import *;
 import math;
 import numpy as np;
 import random;
-import csv;
 import matplotlib.pyplot as plt;
+import csv;
 
-class Bot1:
+class Bot2:
     def __init__(self,maze,flammability):
         self.prev={};
         self.start=(None, None)
@@ -28,8 +28,6 @@ class Bot1:
 
     def move_and_get_position(self):
         return self.path.pop(0)
-        # for node in self.path:
-        #     yield (node[0],node[1]);
     
     def execute_strategy(self,maze,start,end):
         print(f"start and end : {start},{end}")
@@ -80,7 +78,7 @@ class Bot1:
         status=self.execute_strategy(self.maze,(x_start,y_start),(x_button,y_button))[0];
         if(not status):
             print(f"No short path found :(")
-            return;
+            return 0;
         else:
             print("path found")
             self.set_path();
@@ -88,30 +86,34 @@ class Bot1:
         while t < num_time_steps:
             print(f"At timestep t={t}");
             (x,y)=self.move_and_get_position();
-            # Add a condition check to see if bot is catching fire 
-            # (x,y)=next(self.move_and_get_position());
             print(f"curr postion -> {(x,y)}")
             if (x,y) == (x_button,y_button): # Check if Bot has reached the button
                 print("Bot reached the Button.SUCCESS!")
                 simulation_status=True;
                 break;
-            # if np.isin(np.argwhere(self.maze == FIRE), [x,y]).all(axis=1).any()==True: # To check if bot reached the FIRE.
             if np.any(np.all(np.argwhere(self.maze == FIRE) == [x, y], axis=1))==True: # To check if bot reached the FIRE.
                 print(f"Bot and Fire are in the same cell {(x,y)}. Failure.")
-                simulation_status=False;
                 # print(f"Fire Cells -> {np.argwhere(self.maze == FIRE)}")
+                simulation_status=False;
                 break;
             if ((x_start,y_start)!=(x,y)) : self.maze[x][y]=PATH
             self.spread_fire();
             # yield self.get_maze_with_fire_blocks();
-            # if np.isin(np.argwhere(self.maze == FIRE), [x_button,y_button]).all(axis=1).any()==True: # To check if fire reached the Button.
             if np.any(np.all(np.argwhere(self.maze == FIRE) == [x_button,y_button], axis=1))==True: # To check if fire reached the Button.
                 print("Fire reached the Button. Failure.")
                 simulation_status=False;
                 break;
+            if (self.fire_in_path()== True):
+                print("Bot 2 recalculating the path");
+                status=self.execute_strategy(self.maze,(x,y),(x_button,y_button))[0];
+                if(not status):
+                    print(f"No short path found after recalculating.")
+                    simulation_status=False;
+                    break;
+                self.set_path();
             t=t+1
         plt.close();
-        data=[int(simulation_status),self.flammability,self.grid_size,'bot1'];
+        data=[int(simulation_status),self.flammability,self.grid_size,'bot2'];
         with open('graph_data.csv',mode='a',newline='') as file:
             writer=csv.writer(file);
             writer.writerow(data);
@@ -154,3 +156,12 @@ class Bot1:
         if (row+1 < self.grid_size and self.maze[row+1][col]==FIRE) :
             count=count+1;neighbours.append([row+1,col])
         return (count,neighbours);
+
+    def fire_in_path(self):
+        print(f"Checking if there is fire in the path. Curr -> {self.path[0]}")
+        for cell in self.path:
+            [x,y]=cell;
+            if np.any(np.all(np.argwhere(self.maze == FIRE) == [x, y], axis=1))==True:
+                print(f"Found Fire in the path at {[x,y]}")
+                return True 
+        return False;
