@@ -27,6 +27,20 @@ class Ship:
             count=count+1;neighbours.append([row+1,col])
         return (count,neighbours);
 
+    def getBlockedNeighboursCount(self,row,col):
+        count=0;
+        neighbours=[]
+
+        if ( col-1 >=0 and self.maze[row][col-1]==BLOCKED) :
+            count=count+1;neighbours.append([row,col-1])
+        if (col+1 < self.grid_size and self.maze[row][col+1]==BLOCKED) :
+            count=count+1;neighbours.append([row,col+1])
+        if (row-1 >=0 and self.maze[row-1][col]==BLOCKED) :
+            count=count+1;neighbours.append([row-1,col])
+        if (row+1 < self.grid_size and self.maze[row+1][col]==BLOCKED) :
+            count=count+1;neighbours.append([row+1,col])
+        return (count,neighbours);
+
     def getBlockedCells(self, arr):
          return np.argwhere(arr==BLOCKED)
 
@@ -43,7 +57,16 @@ class Ship:
             if self.getOpenNeighboursCount(x,y)[0]==1:
                 return True;
         return False;
-    
+
+    def getDeadCells(self):
+        deadCells=[];
+        open_cells=np.argwhere(self.maze == OPENED)
+        for each_open_cell in open_cells:
+            [x,y]=[each_open_cell[0],each_open_cell[1]];
+            if self.getOpenNeighboursCount(x,y)[0]==1:
+                deadCells.append([x,y])
+        return deadCells;
+
     def desigShipLayout(self):
         while ( self.ifExpansionPossbile()):
             blockedCells = self.getBlockedCells(self.maze);
@@ -51,3 +74,15 @@ class Ship:
             neighbourCount,neighbours= self.getOpenNeighboursCount(random_cell[0],random_cell[1])
             if neighbourCount == 1:
                 self.maze[random_cell[0]][random_cell[1]]=OPENED;
+        deadCells=self.getDeadCells();
+        random.shuffle(deadCells);
+        count=0;dead_cells_count=(len(deadCells)//2);
+        while(count < dead_cells_count):
+            eachCell=deadCells.pop();
+            x=eachCell[0];y=eachCell[1];
+            if self.getOpenNeighboursCount(x,y)[0]==1:
+                _, closedNeighbours= self.getBlockedNeighboursCount(x,y);
+                [row,col]=closedNeighbours[random.randint(0, len(closedNeighbours) - 1)];
+                self.maze[row][col]=OPENED;
+                count=count+1;
+        print(f"The percent of open cells: {(len(np.argwhere(self.maze == OPENED))/(self.grid_size*self.grid_size))*100}%")
