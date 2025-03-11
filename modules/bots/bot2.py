@@ -6,6 +6,7 @@ import numpy as np;
 import random;
 import matplotlib.pyplot as plt;
 import csv;
+import time;
 
 class Bot2:
     def __init__(self,maze,flammability):
@@ -58,7 +59,8 @@ class Bot2:
                     totalCosts[tuple(child)]=cost;
                     #replace item in fringe
                     print(f"Updating {child} to the fringe")
-                    fringe= list(filter(lambda x: x[1]!=child[1],fringe))
+                    # fringe= list(filter(lambda x: x[1]!=child[1],fringe))
+                    fringe= list(filter(lambda x: not np.array_equal(x[1], child),fringe))
                     PriorityQueue.heappush(fringe,(cost,child));
         self.prev=prev;
         print('failed')
@@ -68,6 +70,7 @@ class Bot2:
         t=0;
         ## At time t = 0, place the bot, the button, and the initial fire cell at random and distinct open cells in the ship
         open_cells=np.argwhere(self.maze==OPENED);
+        random.seed(time.time_ns()+100^2);  
         random_cells=random.sample(list(open_cells),3);
         initial_values=[START,BUTTON,FIRE]
         for (x,y) in random_cells:
@@ -77,8 +80,9 @@ class Bot2:
         print(f"Initial Fire cell -> {np.argwhere(self.maze == FIRE)[0]}")
         status=self.execute_strategy(self.maze,(x_start,y_start),(x_button,y_button))[0];
         if(not status):
-            print(f"No short path found :(")
-            return 0;
+            print(f"No short path found :(");
+            plt.close();
+            return;
         else:
             print("path found")
             self.set_path();
@@ -110,11 +114,11 @@ class Bot2:
                     print(f"No short path found after recalculating.")
                     simulation_status=False;
                     break;
-                self.set_path();
+                self.set_path();self.move_and_get_position();
             t=t+1
         plt.close();
         data=[int(simulation_status),self.flammability,self.grid_size,'bot2'];
-        with open('graph_data.csv',mode='a',newline='') as file:
+        with open('graph_data_bot2.csv',mode='a',newline='') as file:
             writer=csv.writer(file);
             writer.writerow(data);
 

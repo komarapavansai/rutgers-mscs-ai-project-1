@@ -60,7 +60,8 @@ class Bot1:
                     totalCosts[tuple(child)]=cost;
                     #replace item in fringe
                     print(f"Updating {child} to the fringe")
-                    fringe= list(filter(lambda x: x[1]!=child[1],fringe))
+                    # fringe= list(filter(lambda x: x[1]!=child[1],fringe))
+                    fringe= list(filter(lambda x: not np.array_equal(x[1], child),fringe))
                     PriorityQueue.heappush(fringe,(cost,child));
         self.prev=prev;
         print('failed')
@@ -112,7 +113,7 @@ class Bot1:
             t=t+1
         plt.close();
         data=[int(simulation_status),self.flammability,self.grid_size,'bot1'];
-        with open('graph_data.csv',mode='a',newline='') as file:
+        with open('graph_data_bot1.csv',mode='a',newline='') as file:
             writer=csv.writer(file);
             writer.writerow(data);
 
