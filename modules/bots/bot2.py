@@ -116,11 +116,14 @@ class Bot2:
                     break;
                 self.set_path();self.move_and_get_position();
             t=t+1
-        plt.close();
         data=[int(simulation_status),self.flammability,self.grid_size,'bot2'];
-        with open('graph_data_bot2.csv',mode='a',newline='') as file:
-            writer=csv.writer(file);
-            writer.writerow(data);
+        # Enable the below snippet for Data generation
+        # plt.close();
+        # with open('gd_bot2.csv',mode='a',newline='') as file:
+        #     writer=csv.writer(file);
+        #     writer.writerow(data);
+        ###########
+        return data;
 
     def spread_fire(self):
         open_cells=np.argwhere(
@@ -131,10 +134,15 @@ class Bot2:
                     );
         q=self.flammability;
         print(f"Fire Spread: No of cells fired so far: {np.argwhere(self.maze == FIRE).shape[0]}")
+        fire_cells_dict=dict();
         for curr_cell in open_cells:
             x=int(curr_cell[0]);y=int(curr_cell[1]);
             # print(f"At cell {x,y}")
             k=self.get_fire_neighbours(x,y)[0];
+            fire_cells_dict[(x,y)]=k;
+        for curr_cell in open_cells:
+            x=int(curr_cell[0]);y=int(curr_cell[1]);
+            k=fire_cells_dict[(x,y)] 
             fire_spread_probability= 1 - (1-q)**k
             # print(f"p-> {fire_spread_probability}, k-> {k}")
             if ( random.random() < fire_spread_probability ):

@@ -78,6 +78,7 @@ class Bot1:
         (x_start,y_start)=np.argwhere(self.maze == START)[0]
         (x_button,y_button)=np.argwhere(self.maze == BUTTON)[0]
         print(f"Initial Fire cell -> {np.argwhere(self.maze == FIRE)[0]}")
+        print(f"{np.argwhere(self.maze == START)}")
         status=self.execute_strategy(self.maze,(x_start,y_start),(x_button,y_button))[0];
         if(not status):
             print(f"No short path found :(")
@@ -111,11 +112,14 @@ class Bot1:
                 simulation_status=False;
                 break;
             t=t+1
-        plt.close();
         data=[int(simulation_status),self.flammability,self.grid_size,'bot1'];
-        with open('graph_data_bot1.csv',mode='a',newline='') as file:
-            writer=csv.writer(file);
-            writer.writerow(data);
+        # Enable the below snippet for Data generation
+        # plt.close();
+        # with open('gd_bot1.csv',mode='a',newline='') as file:
+        #     writer=csv.writer(file);
+        #     writer.writerow(data);
+        ###########
+        return data;
 
     def spread_fire(self):
         open_cells=np.argwhere(
@@ -126,10 +130,15 @@ class Bot1:
                     );
         q=self.flammability;
         print(f"Fire Spread: No of cells fired so far: {np.argwhere(self.maze == FIRE).shape[0]}")
+        fire_cells_dict=dict();
         for curr_cell in open_cells:
             x=int(curr_cell[0]);y=int(curr_cell[1]);
             # print(f"At cell {x,y}")
             k=self.get_fire_neighbours(x,y)[0];
+            fire_cells_dict[(x,y)]=k;
+        for curr_cell in open_cells:
+            x=int(curr_cell[0]);y=int(curr_cell[1]);
+            k=fire_cells_dict[(x,y)] 
             fire_spread_probability= 1 - (1-q)**k
             # print(f"p-> {fire_spread_probability}, k-> {k}")
             if ( random.random() < fire_spread_probability ):

@@ -9,7 +9,7 @@ import csv;
 import time;
 
 class Bot4:
-    def __init__(self,maze,flammability,alpha=0.5):
+    def __init__(self,maze,flammability,alpha=None):
         self.prev={};
         self.start=(None, None)
         self.end=(None, None)
@@ -19,9 +19,16 @@ class Bot4:
         self.path=[];
         self.maze = maze;
         self.flammability = flammability;
-        self.alpha= alpha;
+        self.alpha = alpha if alpha is not None else self.compute_alpha(flammability)
         self.grid_size = maze.shape[0];
-    
+
+    def compute_alpha(self, q, alpha_max=1.0, q_0=0.5, k=5):
+        """ Computes alpha dynamically based on flammability q using sigmoid scaling function"""
+        # here alpha_max is set to 1 as the max value of alpha for heuristic should be 1
+        # q_0 is the threshold of flammability value, which the effects the bot to reach the button. 
+        # q_0 is set to 0.45 based on experimentations of different q values. This signifies that beyond this q values, alpha should increase rapidly.
+        return alpha_max / (1 + math.exp(-k * (q - q_0)))
+
     def set_path(self):
         path=[];
         curr= tuple(self.end);
@@ -83,7 +90,7 @@ class Bot4:
         distance_of_goal_from_cell=abs(x-self.end[0])+abs(y-self.end[1]);
         risk=distance_of_goal_from_cell - self.alpha*distance_of_fire_from_cell;
         if risk < 0:
-            return float('inf');
+            return 1;
         return risk;
     
     def get_nearest_fire_distance(self,x,y):
@@ -106,15 +113,13 @@ class Bot4:
         count_from_curr_to_child=self.actions[(curr,child)];
         curr_visited_count = self.visits[curr];
 
-        # print(f"curr->{curr};child->{child};risk-> {risk_from_curr_to_child};count_from_curr_to_child-> {count_from_curr_to_child}; curr_visited_count -> {curr_visited_count}");
-    
         return (risk_from_curr_to_child/count_from_curr_to_child)\
             + math.sqrt((2* math.log(curr_visited_count))/count_from_curr_to_child);
     
 
     def run_simulation(self,num_time_steps=math.inf,show_animation=True):
         t=0;
-        ## At time t = 0, place the bot, the button, and the initial fire cell at random and distinct open cells in the ship
+        # At time t = 0, place the bot, the button, and the initial fire cell at random and distinct open cells in the ship
         open_cells=np.argwhere(self.maze==OPENED);
         random.seed(time.time_ns()+100^2);  
         random_cells=random.sample(list(open_cells),3);
@@ -148,7 +153,7 @@ class Bot4:
                 break;
             if ((x_start,y_start)!=(x,y)) : self.maze[x][y]=PATH
             self.spread_fire();
-            # yield self.get_maze_with_fire_blocks();
+            yield self.get_maze_with_fire_blocks(); #Enable this line to see visualization.
             if np.any(np.all(np.argwhere(self.maze == FIRE) == [x_button,y_button], axis=1))==True: # To check if fire reached the Button.
                 print("Fire reached the Button. Failure.")
                 simulation_status=False;
@@ -160,11 +165,14 @@ class Bot4:
                 break;
             self.set_path();self.move_and_get_position();
             t=t+1
-        plt.close();
         data=[int(simulation_status),self.flammability,self.grid_size,'bot4',self.alpha];
-        with open('graph_data_bot4.csv',mode='a',newline='') as file:
-            writer=csv.writer(file);
-            writer.writerow(data);
+        # Enable the below snippet for Data generation
+        # plt.close();
+        # with open('gd_bot4.csv',mode='a',newline='') as file:
+        #     writer=csv.writer(file);
+        #     writer.writerow(data);
+        ###########
+        return data;
 
     def spread_fire(self):
         open_cells=np.argwhere(
@@ -175,10 +183,15 @@ class Bot4:
                     );
         q=self.flammability;
         print(f"Fire Spread: No of cells fired so far: {np.argwhere(self.maze == FIRE).shape[0]}")
+        fire_cells_dict=dict();
         for curr_cell in open_cells:
             x=int(curr_cell[0]);y=int(curr_cell[1]);
             # print(f"At cell {x,y}")
             k=self.get_fire_neighbours(x,y)[0];
+            fire_cells_dict[(x,y)]=k;
+        for curr_cell in open_cells:
+            x=int(curr_cell[0]);y=int(curr_cell[1]);
+            k=fire_cells_dict[(x,y)] 
             fire_spread_probability= 1 - (1-q)**k
             # print(f"p-> {fire_spread_probability}, k-> {k}")
             if ( random.random() < fire_spread_probability ):
