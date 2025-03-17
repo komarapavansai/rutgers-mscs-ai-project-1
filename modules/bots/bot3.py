@@ -101,7 +101,7 @@ class Bot3:
                 break;
             if ((x_start,y_start)!=(x,y)) : self.maze[x][y]=PATH
             self.spread_fire();
-            # yield self.get_maze_with_fire_blocks();
+            yield self.get_maze_with_fire_blocks(); #Enable this line to see visualization.
             if np.any(np.all(np.argwhere(self.maze == FIRE) == [x_button,y_button], axis=1))==True: # To check if fire reached the Button.
                 print("Fire reached the Button. Failure.")
                 simulation_status=False;
