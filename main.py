@@ -1,55 +1,17 @@
 from modules.ship.ship import Ship;
 from modules.ship.visualizer import generate_grid,animation_function;
 from modules.constants import *;
-from modules.fire.fire import Fire;
 from modules.bots.bot1 import Bot1;
 from modules.bots.bot2 import Bot2;
 from modules.bots.bot3 import Bot3;
 from modules.bots.bot4 import Bot4;
 import numpy as np;
-import random;
-import pandas as pd;
-
-def str_to_array(matrix_str):
-    # Remove any unwanted characters such as extra brackets or commas
-    matrix_str = matrix_str.strip().replace('[', '').replace(']', '')  # Remove brackets
-    rows = matrix_str.split(',')  # Split by commas instead of new lines
-    matrix = np.array([list(map(int, row.split())) for row in rows if row])  # Convert to 2D numpy array
-    return matrix
 
 def main():
     ship = Ship(input('Enter the grid size of the Ship: '));
     ship.desigShipLayout();
     print(ship.maze)
-
-    # # Read the CSV file using pandas
-    # df = pd.read_csv('shipgeneration.csv')
-
-    # # List to store the numpy arrays
-    # ship_arrays = []
-
-    # # Iterate over the 6th column (index 5) and convert each matrix string to a numpy array
-    # for matrix_str in df.iloc[:, 5]:  # Get all data in the 6th column
-    #     if isinstance(matrix_str, str) and matrix_str.strip():  # Check if it's a non-empty string
-    #         try:
-    #             matrix = str_to_array(matrix_str)  # Convert to numpy array
-    #             ship_arrays.append(matrix)  # Add to the list
-    #         except Exception as e:
-    #             print(f"Error processing matrix: {e}")
-
-    # # Convert the list of numpy arrays to a 3D numpy array
-    # ship_arrays_3d = np.array(ship_arrays)
-    # ship_arrays = ship_arrays_3d.reshape(-1, 40, 40)
-    # maze1=ship_arrays[random.randint(0,14999)].copy();
-    # [x,y] = np.argwhere(maze1 == 2)[0];
-    # maze1[x][y]=0;
-    # [x,y] = np.argwhere(maze1 == 3)[0];
-    # maze1[x][y]=0;
-    # [x,y] = np.argwhere(maze1 == 4)[0];
-    # maze1[x][y]=0;
-
-    bot= Bot4(maze=ship.maze,flammability=0.4);
-    # bot= Bot4(maze=maze1,flammability=0.8);
+    bot= Bot1(maze=ship.maze,flammability=0.4);
     animation_function(bot.run_simulation());
 
     #Generate data for Bot1
@@ -97,8 +59,6 @@ def main():
     #         print(f"Starting the simulation for bot4 for q:{q}, ship_size:{ship.grid_size} and iteration:{itr+1}");
     #         bot=Bot4(maze=maze1,flammability=q,alpha=0.25);
     #         bot.run_simulation();
-
-    # generate_grid(grid=fire.get_maze_with_fire_blocks());
 
 if __name__ == "__main__":
     main()

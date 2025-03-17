@@ -28,8 +28,6 @@ class Bot1:
 
     def move_and_get_position(self):
         return self.path.pop(0)
-        # for node in self.path:
-        #     yield (node[0],node[1]);
     
     def execute_strategy(self,maze,start,end):
         print(f"start and end : {start},{end}")
@@ -105,7 +103,7 @@ class Bot1:
                 break;
             if ((x_start,y_start)!=(x,y)) : self.maze[x][y]=PATH
             self.spread_fire();
-            # yield self.get_maze_with_fire_blocks();
+            yield self.get_maze_with_fire_blocks();
             # if np.isin(np.argwhere(self.maze == FIRE), [x_button,y_button]).all(axis=1).any()==True: # To check if fire reached the Button.
             if np.any(np.all(np.argwhere(self.maze == FIRE) == [x_button,y_button], axis=1))==True: # To check if fire reached the Button.
                 print("Fire reached the Button. Failure.")
