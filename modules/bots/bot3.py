@@ -39,25 +39,19 @@ class Bot3:
         totalCosts={start:0}
         prev={start:None}
         while bool(fringe):
-            # print(f"in while {fringe}")
             curr=PriorityQueue.heappop(fringe)[1]
             if curr == end:
                 self.prev=prev
                 return True,prev,totalCosts;
-            # print(f"Fringe->{curr}:{fringe}")
-            # print(f"Neighbours of curr {curr}->{get_open_neighbours(maze,curr[0],curr[1])[1]}")
             for child in get_open_neighbours(maze,curr[0],curr[1])[1]:
-                # print(f"processing child: {child}")
                 cost = totalCosts[tuple(curr)] + 1;
                 if tuple(child) not in totalCosts:
                     prev[tuple(child)]=curr;
                     totalCosts[tuple(child)]=cost;
-                    # print(f"Adding {child} to the fringe")
                     PriorityQueue.heappush(fringe,(cost,child));
                 if cost < totalCosts[tuple(child)] :
                     prev[tuple(child)]=curr;
                     totalCosts[tuple(child)]=cost;
-                    #replace item in fringe
                     print(f"Updating {child} to the fringe")
                     fringe= list(filter(lambda x: not np.array_equal(x[1], child),fringe))
                     PriorityQueue.heappush(fringe,(cost,child));
@@ -67,7 +61,6 @@ class Bot3:
 
     def run_simulation(self,num_time_steps=math.inf,show_animation=True):
         t=0;
-        ## At time t = 0, place the bot, the button, and the initial fire cell at random and distinct open cells in the ship
         open_cells=np.argwhere(self.maze==OPENED);
         random.seed(time.time_ns()+100^2);  
         random_cells=random.sample(list(open_cells),3);
@@ -96,7 +89,6 @@ class Bot3:
                 break;
             if np.any(np.all(np.argwhere(self.maze == FIRE) == [x, y], axis=1))==True: # To check if bot reached the FIRE.
                 print(f"Bot and Fire are in the same cell {(x,y)}. Failure.")
-                # print(f"Fire Cells -> {np.argwhere(self.maze == FIRE)}")
                 simulation_status=False;
                 break;
             if ((x_start,y_start)!=(x,y)) : self.maze[x][y]=PATH
@@ -106,18 +98,15 @@ class Bot3:
                 print("Fire reached the Button. Failure.")
                 simulation_status=False;
                 break;
-            # To replan the path avoiding the fire cells.
             if (self.fire_in_path()== True):
                 print("Bot 3 recalculating the path");
                 status=self.execute_strategy(self.maze,(x,y),(x_button,y_button))[0];
-                # if no path is found avoiding the fire cells, it means bot cannot reach the button.
                 if(not status):
                     print(f"No short path found after recalculating.")
                     simulation_status=False;
                     break;
                 self.set_path();self.move_and_get_position();
             
-            # Following snippet is to check if there is a possibility to avoid any cells adjacent to fire cells. 
             [if_fire_in_adjacent_cells,cells_adjacent_to_fire]= self.fire_in_adjacent_cells_path();
             if (if_fire_in_adjacent_cells == True):
                 print("Bot 3 recalculating the path");
@@ -125,7 +114,6 @@ class Bot3:
                 for each_cell in cells_adjacent_to_fire:
                     self.maze[each_cell[0]][each_cell[1]]=FIRE;
                 status=self.execute_strategy(self.maze,(x,y),(x_button,y_button))[0];
-                # if there is no such path, shortest path is based on current fire cells only.
                 if(not status):
                     print(f"No short path found after recalculating by avoiding adjacent fire cells.")
                     for each_cell in cells_adjacent_to_fire:
@@ -136,12 +124,6 @@ class Bot3:
                     self.set_path();self.move_and_get_position();
             t=t+1
         data=[int(simulation_status),self.flammability,self.grid_size,'bot3'];
-        # Enable the below snippet for Data generation
-        # plt.close();
-        # with open('gd_bot3.csv',mode='a',newline='') as file:
-        #     writer=csv.writer(file);
-        #     writer.writerow(data);
-        ###########
         return data;
 
     def spread_fire(self):
@@ -156,19 +138,15 @@ class Bot3:
         fire_cells_dict=dict();
         for curr_cell in open_cells:
             x=int(curr_cell[0]);y=int(curr_cell[1]);
-            # print(f"At cell {x,y}")
             k=self.get_fire_neighbours(x,y)[0];
             fire_cells_dict[(x,y)]=k;
         for curr_cell in open_cells:
             x=int(curr_cell[0]);y=int(curr_cell[1]);
             k=fire_cells_dict[(x,y)] 
             fire_spread_probability= 1 - (1-q)**k
-            # print(f"p-> {fire_spread_probability}, k-> {k}")
             if ( random.random() < fire_spread_probability ):
                 self.maze[x,y]= FIRE # set cell on Fire !
                 print(f"The cell({x},{y} is set on FIRE with propability p={fire_spread_probability})");
-            # else:
-                # print(f"The cell({x},{y} didnt set on FIRE with propability p={fire_spread_probability})")
 
     def get_maze_with_fire_blocks(self):
         print(f"No of cells fired so far: {np.argwhere(self.maze == FIRE).shape[0]}")

@@ -62,7 +62,6 @@ def update_grid(frame, grid_generator):
         ax.grid(which='both', color='black', linestyle='-', linewidth=1)
         plt.draw()
     except StopIteration:
-        # If StopIteration occurs, it means the generator has completed
         print("Generator has finished. Animation complete!")
         plt.close()  # Close the plot when the generator finishes
 
