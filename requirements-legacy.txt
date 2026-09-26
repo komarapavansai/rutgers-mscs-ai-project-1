@@ -1,0 +1,3 @@
+-r requirements.txt
+# Only needed for the original Matplotlib visualizer and legacy bot runners.
+matplotlib>=3.10,<4
